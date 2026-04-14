@@ -3,27 +3,42 @@ package unlp.info.bd2.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "user")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @Column(nullable = false, length = 50, unique = true, updatable = false)
     private String username;
 
+    @Column(nullable = false, length = 20)
     private String password;
 
+    @Column(nullable = false, length = 50)
     private String name;
 
+    @Column(nullable = false, unique = true, updatable = false)
     private String email;
 
+    @Column(nullable = false, name = "birth_date")
+    @Temporal(TemporalType.DATE)
     private Date birthdate;
 
+    @Column(nullable = false, name = "phone_number")
     private String phoneNumber;
 
+    @Column(nullable = false)
     private boolean active;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Purchase> purchaseList;
-
 
     public Long getId() {
         return id;

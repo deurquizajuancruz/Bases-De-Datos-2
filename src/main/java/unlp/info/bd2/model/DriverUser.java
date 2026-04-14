@@ -1,12 +1,19 @@
 package unlp.info.bd2.model;
 
-
 import java.util.List;
 
+import org.hibernate.query.sqm.FetchClauseType;
+
+import jakarta.persistence.*;
+
+@Entity
+@DiscriminatorValue("Driver")
 public class DriverUser extends User {
 
+    @Column(nullable = false, length = 50)
     private String expedient;
 
+    @ManyToMany(mappedBy = "driverList", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     private List<Route> routes;
 
     public String getExpedient() {
