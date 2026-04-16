@@ -3,6 +3,7 @@ package unlp.info.bd2.repositories;
 import java.util.List;
 import org.hibernate.SessionFactory;
 import unlp.info.bd2.model.User;
+import java.util.Optional;
 
 public class UserRepositoryImpl implements UserRepository {
     private SessionFactory sessionFactory;
@@ -18,8 +19,8 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User findById(Long id) {
-        return this.sessionFactory.getCurrentSession().get(User.class, id);
+    public Optional<User> findById(Long id) {
+        return Optional.ofNullable(this.sessionFactory.getCurrentSession().get(User.class, id));
     }
 
     @Override

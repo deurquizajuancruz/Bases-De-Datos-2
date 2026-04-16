@@ -3,46 +3,79 @@ package unlp.info.bd2.services;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.transaction.Transactional;
 import unlp.info.bd2.model.*;
-import unlp.info.bd2.repositories.ToursRepository;
+import unlp.info.bd2.repositories.*;
 import unlp.info.bd2.utils.ToursException;
 
 public class ToursServiceImpl implements ToursService {
-    private ToursRepository repository;
+    private PurchaseRepository purchaseRepository;
+    private ReviewRepository reviewRepository;
+    private RouteRepository routeRepository;
+    private ServiceRepository serviceRepository;
+    private SupplierRepository supplierRepository;
+    private UserRepository userRepository;
 
-    public ToursServiceImpl() {
-
-    }
-
-    public ToursServiceImpl(ToursRepository repository) {
-        this.repository = repository;
+    public ToursServiceImpl(PurchaseRepository purchaseRepository, SupplierRepository supplierRepository,
+            ReviewRepository reviewRepository, RouteRepository routeRepository, ServiceRepository serviceRepository,
+            UserRepository userRepository) {
+        this.purchaseRepository = purchaseRepository;
+        this.reviewRepository = reviewRepository;
+        this.routeRepository = routeRepository;
+        this.serviceRepository = serviceRepository;
+        this.supplierRepository = supplierRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
+    @Transactional
     public User createUser(String username, String password, String fullName, String email, Date birthdate,
-            String phoneNumber) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createUser'");
+            String phoneNumber) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setName(fullName);
+        user.setEmail(email);
+        user.setBirthdate(birthdate);
+        user.setPhoneNumber(phoneNumber);
+        return userRepository.saveUser(user);
     }
 
     @Override
+    @Transactional
     public DriverUser createDriverUser(String username, String password, String fullName, String email, Date birthdate,
-            String phoneNumber, String expedient) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createDriverUser'");
+            String phoneNumber, String expedient) {
+        DriverUser driverUser = new DriverUser();
+        driverUser.setUsername(username);
+        driverUser.setPassword(password);
+        driverUser.setName(fullName);
+        driverUser.setEmail(email);
+        driverUser.setBirthdate(birthdate);
+        driverUser.setPhoneNumber(phoneNumber);
+        driverUser.setExpedient(expedient);
+        return (DriverUser) userRepository.saveUser(driverUser);
     }
 
     @Override
+    @Transactional
     public TourGuideUser createTourGuideUser(String username, String password, String fullName, String email,
-            Date birthdate, String phoneNumber, String education) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createTourGuideUser'");
+            Date birthdate, String phoneNumber, String education) {
+        TourGuideUser tourGuideUser = new TourGuideUser();
+        tourGuideUser.setUsername(username);
+        tourGuideUser.setPassword(password);
+        tourGuideUser.setName(fullName);
+        tourGuideUser.setEmail(email);
+        tourGuideUser.setBirthdate(birthdate);
+        tourGuideUser.setPhoneNumber(phoneNumber);
+        tourGuideUser.setEducation(education);
+        return (TourGuideUser) userRepository.saveUser(tourGuideUser);
     }
 
     @Override
-    public Optional<User> getUserById(Long id) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserById'");
+    @Transactional
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
     }
 
     @Override
@@ -107,9 +140,12 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
-    public Supplier createSupplier(String businessName, String authorizationNumber) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createSupplier'");
+    @Transactional
+    public Supplier createSupplier(String businessName, String authorizationNumber) {
+        Supplier supplier = new Supplier();
+        supplier.setAuthorizationNumber(authorizationNumber);
+        supplier.setBusinessName(businessName);
+        return supplierRepository.saveSupplier(supplier);
     }
 
     @Override

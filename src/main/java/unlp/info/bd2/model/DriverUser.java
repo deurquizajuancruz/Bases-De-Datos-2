@@ -1,9 +1,6 @@
 package unlp.info.bd2.model;
 
 import java.util.List;
-
-import org.hibernate.query.sqm.FetchClauseType;
-
 import jakarta.persistence.*;
 
 @Entity
