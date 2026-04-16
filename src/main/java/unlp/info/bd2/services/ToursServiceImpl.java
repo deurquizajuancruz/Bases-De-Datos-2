@@ -5,27 +5,45 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.transaction.Transactional;
-import unlp.info.bd2.model.*;
-import unlp.info.bd2.repositories.*;
+import unlp.info.bd2.model.DriverUser;
+import unlp.info.bd2.model.ItemService;
+import unlp.info.bd2.model.Purchase;
+import unlp.info.bd2.model.Review;
+import unlp.info.bd2.model.Route;
+import unlp.info.bd2.model.Service;
+import unlp.info.bd2.model.Stop;
+import unlp.info.bd2.model.Supplier;
+import unlp.info.bd2.model.TourGuideUser;
+import unlp.info.bd2.model.User;
+import unlp.info.bd2.repositories.PurchaseRepository;
+import unlp.info.bd2.repositories.ReviewRepository;
+import unlp.info.bd2.repositories.RouteRepository;
+import unlp.info.bd2.repositories.ServiceRepository;
+import unlp.info.bd2.repositories.StopRepository;
+import unlp.info.bd2.repositories.SupplierRepository;
+import unlp.info.bd2.repositories.UserRepository;
 import unlp.info.bd2.utils.ToursException;
 
 public class ToursServiceImpl implements ToursService {
-    private PurchaseRepository purchaseRepository;
-    private ReviewRepository reviewRepository;
-    private RouteRepository routeRepository;
-    private ServiceRepository serviceRepository;
-    private SupplierRepository supplierRepository;
-    private UserRepository userRepository;
+
+    private final PurchaseRepository purchaseRepository;
+    private final ReviewRepository reviewRepository;
+    private final RouteRepository routeRepository;
+    private final ServiceRepository serviceRepository;
+    private final SupplierRepository supplierRepository;
+    private final UserRepository userRepository;
+    private final StopRepository stopRepository;
 
     public ToursServiceImpl(PurchaseRepository purchaseRepository, SupplierRepository supplierRepository,
             ReviewRepository reviewRepository, RouteRepository routeRepository, ServiceRepository serviceRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository, StopRepository stopRepository) {
         this.purchaseRepository = purchaseRepository;
         this.reviewRepository = reviewRepository;
         this.routeRepository = routeRepository;
         this.serviceRepository = serviceRepository;
         this.supplierRepository = supplierRepository;
         this.userRepository = userRepository;
+        this.stopRepository = stopRepository;
     }
 
     @Override
@@ -39,7 +57,7 @@ public class ToursServiceImpl implements ToursService {
         user.setEmail(email);
         user.setBirthdate(birthdate);
         user.setPhoneNumber(phoneNumber);
-        return userRepository.saveUser(user);
+        return this.userRepository.save(user);
     }
 
     @Override
@@ -54,7 +72,7 @@ public class ToursServiceImpl implements ToursService {
         driverUser.setBirthdate(birthdate);
         driverUser.setPhoneNumber(phoneNumber);
         driverUser.setExpedient(expedient);
-        return (DriverUser) userRepository.saveUser(driverUser);
+        return (DriverUser) this.userRepository.save(driverUser);
     }
 
     @Override
@@ -69,56 +87,65 @@ public class ToursServiceImpl implements ToursService {
         tourGuideUser.setBirthdate(birthdate);
         tourGuideUser.setPhoneNumber(phoneNumber);
         tourGuideUser.setEducation(education);
-        return (TourGuideUser) userRepository.saveUser(tourGuideUser);
+        return (TourGuideUser) this.userRepository.save(tourGuideUser);
     }
 
     @Override
     @Transactional
     public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+        return this.userRepository.findById(id);
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) throws ToursException {
+    public Optional<User> getUserByUsername(String username) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getUserByUsername'");
     }
 
     @Override
-    public User updateUser(User user) throws ToursException {
+    @Transactional
+    public User updateUser(User user) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
+        return user;
     }
 
     @Override
-    public void deleteUser(User user) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+    @Transactional
+    public void deleteUser(User user) {
+        this.userRepository.delete(user);
     }
 
     @Override
-    public Stop createStop(String name, String description) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createStop'");
+    @Transactional
+    public Stop createStop(String name, String description) {
+        Stop stop = new Stop();
+        stop.setDescription(description);
+        stop.setName(name);
+        return this.stopRepository.save(stop);
     }
 
     @Override
+    @Transactional
     public List<Stop> getStopByNameStart(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getStopByNameStart'");
+        return this.stopRepository.findAll().stream().filter(s -> s.getName().equals(name)).toList();
     }
 
     @Override
-    public Route createRoute(String name, float price, float totalKm, int maxNumberOfUsers, List<Stop> stops)
-            throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createRoute'");
+    @Transactional
+    public Route createRoute(String name, float price, float totalKm, int maxNumberOfUsers, List<Stop> stops) {
+        Route route = new Route();
+        route.setName(name);
+        route.setPrice(price);
+        route.setTotalKm(totalKm);
+        route.setMaxNumberUsers(maxNumberOfUsers);
+        route.setStops(stops);
+        return this.routeRepository.save(route);
     }
 
     @Override
+    @Transactional
     public Optional<Route> getRouteById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRouteById'");
+        return this.routeRepository.findById(id);
     }
 
     @Override
@@ -145,12 +172,13 @@ public class ToursServiceImpl implements ToursService {
         Supplier supplier = new Supplier();
         supplier.setAuthorizationNumber(authorizationNumber);
         supplier.setBusinessName(businessName);
-        return supplierRepository.saveSupplier(supplier);
+        return supplierRepository.save(supplier);
     }
 
     @Override
-    public Service addServiceToSupplier(String name, float price, String description, Supplier supplier)
-            throws ToursException {
+    public Service addServiceToSupplier(String name, float price, String description, Supplier supplier) {
+        Service service = new Service();
+        service.setSupplier(supplier);
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'addServiceToSupplier'");
     }
