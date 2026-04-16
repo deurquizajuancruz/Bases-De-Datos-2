@@ -1,7 +1,10 @@
 package unlp.info.bd2.repositories;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.hibernate.SessionFactory;
+
 import unlp.info.bd2.model.Purchase;
 
 public class PurchaseRepositoryImpl implements PurchaseRepository {
@@ -12,9 +15,8 @@ public class PurchaseRepositoryImpl implements PurchaseRepository {
     }
 
     @Override
-    public Purchase savePurchase(Purchase purchase) {
-        this.sessionFactory.getCurrentSession().merge(purchase);
-        return purchase;
+    public Optional<Purchase> savePurchase(Purchase purchase) {
+        return Optional.ofNullable(this.sessionFactory.getCurrentSession().merge(purchase));
     }
 
     @Override
