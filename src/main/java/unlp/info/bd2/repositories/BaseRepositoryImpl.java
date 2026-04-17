@@ -15,13 +15,13 @@ public abstract class BaseRepositoryImpl<T> implements BaseRepository<T> {
     }
 
     @Override
-    public Optional<T> save(T entity) {
-        return Optional.ofNullable(this.sessionFactory.getCurrentSession().merge(entity));
+    public T save(T entity) {
+        return this.sessionFactory.getCurrentSession().merge(entity);
     }
 
     @Override
-    public T findById(Long id) {
-        return this.sessionFactory.getCurrentSession().get(this.entityClass, id);
+    public Optional<T> findById(Long id) {
+        return Optional.ofNullable(this.sessionFactory.getCurrentSession().get(this.entityClass, id));
     }
 
     @Override

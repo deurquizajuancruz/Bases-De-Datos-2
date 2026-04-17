@@ -97,16 +97,18 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
+    @Transactional
     public Optional<User> getUserByUsername(String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserByUsername'");
+        return this.userRepository.getUserByUsername(username);
     }
 
     @Override
     @Transactional
-    public User updateUser(User user) {
-        // TODO Auto-generated method stub
-        return user;
+    public User updateUser(User user) throws ToursException{
+        if (user.getId() == null || userRepository.findById(user.getId()).isEmpty()) {
+            throw new ToursException("No se puede actualizar: El usuario no existe.");
+        }
+        return this.userRepository.save(user);
     }
 
     @Override
