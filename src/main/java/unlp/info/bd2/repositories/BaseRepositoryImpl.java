@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public abstract class BaseRepositoryImpl<T> implements BaseRepository<T> {
     protected SessionFactory sessionFactory;
     private final Class<T> entityClass;

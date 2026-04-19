@@ -3,7 +3,13 @@ package unlp.info.bd2.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
 
 @Entity
 @DiscriminatorValue("TourGuide")
@@ -15,6 +21,16 @@ public class TourGuideUser extends User {
     @ManyToMany(mappedBy = "tourGuideList", cascade = { CascadeType.PERSIST,
             CascadeType.MERGE }, fetch = FetchType.LAZY)
     private List<Route> routes;
+
+    public TourGuideUser() {
+
+    }
+
+    public TourGuideUser(String username, String password, String fullName, String email, Date birthdate, String phoneNumber, String education) {
+        super(username, password, fullName, email, birthdate, phoneNumber);
+        this.education = education;
+        this.routes = new ArrayList<>();
+    }
 
     public String getEducation() {
         return education;

@@ -1,6 +1,13 @@
 package unlp.info.bd2.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "review")
@@ -19,6 +26,20 @@ public class Review {
     @OneToOne
     @JoinColumn(name = "purchase_id", unique = true, nullable = false)
     private Purchase purchase;
+
+    public Review() {
+
+    }
+
+    public Review(int rating, String comment, Purchase purchase) {
+        this.rating = rating;
+        this.comment = comment;
+        this.purchase = purchase;
+
+        if (purchase != null) {
+            purchase.setReview(this);
+        }
+    }
 
     public Long getId() {
         return id;

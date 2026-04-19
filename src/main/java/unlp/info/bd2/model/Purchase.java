@@ -3,7 +3,20 @@ package unlp.info.bd2.model;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "purchase")
@@ -36,6 +49,21 @@ public class Purchase {
 
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ItemService> itemServiceList;
+
+    public Purchase() {
+
+    }
+
+    public Purchase(String code, Date date, User user, Route route) {
+        this.code = code;
+        this.user = user;
+        this.date = date;
+        this.route = route;
+
+        if (user != null) {
+            user.getPurchaseList().add(this);
+        }
+    }
 
     public Long getId() {
         return id;
@@ -75,6 +103,7 @@ public class Purchase {
 
     public void setUser(User user) {
         this.user = user;
+        user.getPurchaseList().add(this);
     }
 
     public Route getRoute() {

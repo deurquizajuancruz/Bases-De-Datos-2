@@ -15,6 +15,7 @@ import unlp.info.bd2.model.Stop;
 import unlp.info.bd2.model.Supplier;
 import unlp.info.bd2.model.TourGuideUser;
 import unlp.info.bd2.model.User;
+import unlp.info.bd2.repositories.ItemServiceRepository;
 import unlp.info.bd2.repositories.PurchaseRepository;
 import unlp.info.bd2.repositories.ReviewRepository;
 import unlp.info.bd2.repositories.RouteRepository;
@@ -33,10 +34,11 @@ public class ToursServiceImpl implements ToursService {
     private final SupplierRepository supplierRepository;
     private final UserRepository userRepository;
     private final StopRepository stopRepository;
+    private final ItemServiceRepository itemServiceRepository;
 
     public ToursServiceImpl(PurchaseRepository purchaseRepository, SupplierRepository supplierRepository,
             ReviewRepository reviewRepository, RouteRepository routeRepository, ServiceRepository serviceRepository,
-            UserRepository userRepository, StopRepository stopRepository) {
+            UserRepository userRepository, StopRepository stopRepository, ItemServiceRepository itemServiceRepository) {
         this.purchaseRepository = purchaseRepository;
         this.reviewRepository = reviewRepository;
         this.routeRepository = routeRepository;
@@ -44,19 +46,14 @@ public class ToursServiceImpl implements ToursService {
         this.supplierRepository = supplierRepository;
         this.userRepository = userRepository;
         this.stopRepository = stopRepository;
+        this.itemServiceRepository = itemServiceRepository;
     }
 
     @Override
     @Transactional
     public User createUser(String username, String password, String fullName, String email, Date birthdate,
             String phoneNumber) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setName(fullName);
-        user.setEmail(email);
-        user.setBirthdate(birthdate);
-        user.setPhoneNumber(phoneNumber);
+        User user = new User(username, password, fullName, email, birthdate, phoneNumber);
         return this.userRepository.save(user);
     }
 
@@ -64,14 +61,7 @@ public class ToursServiceImpl implements ToursService {
     @Transactional
     public DriverUser createDriverUser(String username, String password, String fullName, String email, Date birthdate,
             String phoneNumber, String expedient) {
-        DriverUser driverUser = new DriverUser();
-        driverUser.setUsername(username);
-        driverUser.setPassword(password);
-        driverUser.setName(fullName);
-        driverUser.setEmail(email);
-        driverUser.setBirthdate(birthdate);
-        driverUser.setPhoneNumber(phoneNumber);
-        driverUser.setExpedient(expedient);
+        DriverUser driverUser = new DriverUser(username, password, fullName, email, birthdate, phoneNumber, expedient);
         return (DriverUser) this.userRepository.save(driverUser);
     }
 
@@ -79,14 +69,7 @@ public class ToursServiceImpl implements ToursService {
     @Transactional
     public TourGuideUser createTourGuideUser(String username, String password, String fullName, String email,
             Date birthdate, String phoneNumber, String education) {
-        TourGuideUser tourGuideUser = new TourGuideUser();
-        tourGuideUser.setUsername(username);
-        tourGuideUser.setPassword(password);
-        tourGuideUser.setName(fullName);
-        tourGuideUser.setEmail(email);
-        tourGuideUser.setBirthdate(birthdate);
-        tourGuideUser.setPhoneNumber(phoneNumber);
-        tourGuideUser.setEducation(education);
+        TourGuideUser tourGuideUser = new TourGuideUser(username, password, fullName, email, birthdate, phoneNumber, education);
         return (TourGuideUser) this.userRepository.save(tourGuideUser);
     }
 
@@ -104,7 +87,7 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     @Transactional
-    public User updateUser(User user) throws ToursException{
+    public User updateUser(User user) throws ToursException {
         if (user.getId() == null || userRepository.findById(user.getId()).isEmpty()) {
             throw new ToursException("No se puede actualizar: El usuario no existe.");
         }
@@ -120,27 +103,20 @@ public class ToursServiceImpl implements ToursService {
     @Override
     @Transactional
     public Stop createStop(String name, String description) {
-        Stop stop = new Stop();
-        stop.setDescription(description);
-        stop.setName(name);
+        Stop stop = new Stop(name, description);
         return this.stopRepository.save(stop);
     }
 
     @Override
     @Transactional
     public List<Stop> getStopByNameStart(String name) {
-        return this.stopRepository.findAll().stream().filter(s -> s.getName().equals(name)).toList();
+        return this.stopRepository.getStopByName(name);
     }
 
     @Override
     @Transactional
     public Route createRoute(String name, float price, float totalKm, int maxNumberOfUsers, List<Stop> stops) {
-        Route route = new Route();
-        route.setName(name);
-        route.setPrice(price);
-        route.setTotalKm(totalKm);
-        route.setMaxNumberUsers(maxNumberOfUsers);
-        route.setStops(stops);
+        Route route = new Route(name, price, totalKm, maxNumberOfUsers, stops);
         return this.routeRepository.save(route);
     }
 
@@ -151,163 +127,203 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
+    @Transactional
     public List<Route> getRoutesBelowPrice(float price) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRoutesBelowPrice'");
+        return this.routeRepository.getRoutesBelowPrice(price);
     }
 
     @Override
+    @Transactional
     public void assignDriverByUsername(String username, Long idRoute) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'assignDriverByUsername'");
+        DriverUser driver = (DriverUser) this.userRepository.getUserByUsername(username)
+                .filter(u -> u instanceof DriverUser)
+                .orElseThrow(() -> new ToursException("Driver with username" + username + " does not exist"));
+        Route route = this.routeRepository.findById(idRoute).orElseThrow(() -> new ToursException("Route with id" + idRoute + " does not exist"));
+
+        if (!route.getDriverList().contains(driver)) {
+            route.addDriver(driver);
+            this.routeRepository.save(route);
+        }
     }
 
     @Override
+    @Transactional
     public void assignTourGuideByUsername(String username, Long idRoute) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'assignTourGuideByUsername'");
+        TourGuideUser tourGuide = (TourGuideUser) this.userRepository.getUserByUsername(username)
+                .filter(u -> u instanceof TourGuideUser)
+                .orElseThrow(() -> new ToursException("TourGuide with username " + username + " does not exist"));
+        Route route = this.routeRepository.findById(idRoute).orElseThrow(() -> new ToursException("Route with id" + idRoute + " does not exist"));
+
+        if (!route.getTourGuideList().contains(tourGuide)) {
+            route.addTourGuide(tourGuide);
+            this.routeRepository.save(route);
+        }
     }
 
     @Override
     @Transactional
     public Supplier createSupplier(String businessName, String authorizationNumber) {
-        Supplier supplier = new Supplier();
-        supplier.setAuthorizationNumber(authorizationNumber);
-        supplier.setBusinessName(businessName);
+        Supplier supplier = new Supplier(businessName, authorizationNumber);
         return supplierRepository.save(supplier);
     }
 
     @Override
-    public Service addServiceToSupplier(String name, float price, String description, Supplier supplier) {
-        Service service = new Service();
-        service.setSupplier(supplier);
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addServiceToSupplier'");
+    @Transactional
+    public Service addServiceToSupplier(String name, float price, String description, Supplier supplier) throws ToursException {
+        Supplier foundSupplier = this.supplierRepository.findById(supplier.getId()).orElseThrow(() -> new ToursException("Supplier was not found"));
+        boolean exists = foundSupplier.getServices().stream().anyMatch(s -> s.getName().equals(name));
+
+        if (exists) {
+            throw new ToursException("Supplier already has service with name " + name);
+        }
+
+        Service service = new Service(name, price, description, foundSupplier);
+
+        foundSupplier.getServices().add(service);
+        return this.serviceRepository.save(service);
     }
 
     @Override
+    @Transactional
     public Service updateServicePriceById(Long id, float newPrice) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateServicePriceById'");
+        Service foundService = this.serviceRepository.findById(id).orElseThrow(() -> new ToursException("No service found with id " + id));
+        foundService.setPrice(newPrice);
+        return this.serviceRepository.save(foundService);
     }
 
     @Override
+    @Transactional
     public Optional<Supplier> getSupplierById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSupplierById'");
+        return this.supplierRepository.findById(id);
     }
 
     @Override
+    @Transactional
     public Optional<Supplier> getSupplierByAuthorizationNumber(String authorizationNumber) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSupplierByAuthorizationNumber'");
+        return this.supplierRepository.getSupplierByAuthorizationNumber(authorizationNumber);
     }
 
     @Override
+    @Transactional
     public Optional<Service> getServiceByNameAndSupplierId(String name, Long id) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getServiceByNameAndSupplierId'");
+        return this.serviceRepository.getServiceByNameAndSupplierId(name, id);
     }
 
     @Override
+    @Transactional
     public Purchase createPurchase(String code, Route route, User user) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createPurchase'");
+        return this.createPurchase(code, new Date(), route, user);
     }
 
     @Override
+    @Transactional
     public Purchase createPurchase(String code, Date date, Route route, User user) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createPurchase'");
+        if (!this.purchaseRepository.getAvailabilty(route, date)) {
+            throw new ToursException("There's no availabilty for the route in the date specified");
+        }
+
+        Purchase purchase = new Purchase(code, date, user, route);
+
+        return this.purchaseRepository.save(purchase);
     }
 
     @Override
-    public ItemService addItemToPurchase(Service service, int quantity, Purchase purchase) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addItemToPurchase'");
+    @Transactional
+    public ItemService addItemToPurchase(Service service, int quantity, Purchase purchase) {
+        ItemService itemService = new ItemService(service, quantity, purchase);
+        return this.itemServiceRepository.save(itemService);
     }
 
     @Override
+    @Transactional
     public Optional<Purchase> getPurchaseByCode(String code) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPurchaseByCode'");
+        return this.purchaseRepository.getPurchaseByCode(code);
     }
 
     @Override
-    public void deletePurchase(Purchase purchase) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deletePurchase'");
+    @Transactional
+    public void deletePurchase(Purchase purchase) {
+        this.purchaseRepository.delete(purchase);
     }
 
     @Override
+    @Transactional
     public Review addReviewToPurchase(int rating, String comment, Purchase purchase) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addReviewToPurchase'");
+        if (purchase.getReview() != null) {
+            throw new ToursException("This purchase already has a review");
+        }
+        Review review = new Review(rating, comment, purchase);
+        return this.reviewRepository.save(review);
     }
 
     @Override
+    @Transactional
     public void deleteRoute(Route route) throws ToursException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRoute'");
+        if (this.purchaseRepository.hasPurchases(route.getId())) {
+            throw new ToursException("You cannot delete a route with associated purchases");
+        }
+        this.routeRepository.delete(route);
     }
 
     @Override
+    @Transactional
     public List<Purchase> getAllPurchasesOfUsername(String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllPurchasesOfUsername'");
+        return this.purchaseRepository.getAllPurchasesOfUsername(username);
+        // User user = this.userRepository.getUserByUsername(username).orElseThrow(() -> new ToursException("Username " + username + " was not found"));
+        // return user.getPurchaseList();
     }
 
     @Override
+    @Transactional
     public List<User> getUserSpendingMoreThan(float mount) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserSpendingMoreThan'");
+        return this.userRepository.getUserSpendingMoreThan(mount);
     }
 
     @Override
+    @Transactional
     public List<Supplier> getTopNSuppliersInPurchases(int n) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTopNSuppliersInPurchases'");
+        return this.supplierRepository.getTopNSuppliersInPurchases(n);
     }
 
     @Override
+    @Transactional
     public long getCountOfPurchasesBetweenDates(Date start, Date end) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCountOfPurchasesBetweenDates'");
+        return this.purchaseRepository.getCountOfPurchasesBetweenDates(start, end);
     }
 
     @Override
+    @Transactional
     public List<Route> getRoutesWithStop(Stop stop) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRoutesWithStop'");
+        return this.routeRepository.getRoutesWithStop(stop);
     }
 
     @Override
+    @Transactional
     public Long getMaxStopOfRoutes() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMaxStopOfRoutes'");
+        return this.routeRepository.getMaxStopOfRoutes();
     }
 
     @Override
+    @Transactional
     public List<Route> getRoutsNotSell() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRoutsNotSell'");
+        return this.routeRepository.getRoutsNotSell();
     }
 
     @Override
+    @Transactional
     public List<Route> getTop3RoutesWithMaxRating() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTop3RoutesWithMaxRating'");
+        return this.routeRepository.getTop3RoutesWithMaxRating();
     }
 
     @Override
+    @Transactional
     public Service getMostDemandedService() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMostDemandedService'");
+        return this.serviceRepository.getMostDemandedService();
     }
 
     @Override
+    @Transactional
     public List<TourGuideUser> getTourGuidesWithRating1() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTourGuidesWithRating1'");
+        return this.userRepository.getTourGuidesWithRating1();
     }
 }
