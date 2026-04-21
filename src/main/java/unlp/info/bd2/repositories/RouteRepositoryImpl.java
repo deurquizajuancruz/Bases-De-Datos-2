@@ -50,7 +50,7 @@ public class RouteRepositoryImpl extends BaseRepositoryImpl<Route> implements Ro
 
     @Override
     public List<Route> getTop3RoutesWithMaxRating() {
-        String hql = "SELECT p.route FROM Purchase p WHERE P.review IS NOT NULL GROUP BY p.route ORDER BY AVG(p.review.rating) DESC";
+        String hql = "SELECT p.route FROM Purchase p WHERE p.review IS NOT NULL GROUP BY p.route ORDER BY AVG(p.review.rating) DESC";
         return this.sessionFactory.getCurrentSession().createQuery(hql, Route.class).setMaxResults(3).getResultList();
     }
 

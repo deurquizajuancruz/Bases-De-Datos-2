@@ -5,24 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.transaction.Transactional;
-import unlp.info.bd2.model.DriverUser;
-import unlp.info.bd2.model.ItemService;
-import unlp.info.bd2.model.Purchase;
-import unlp.info.bd2.model.Review;
-import unlp.info.bd2.model.Route;
-import unlp.info.bd2.model.Service;
-import unlp.info.bd2.model.Stop;
-import unlp.info.bd2.model.Supplier;
-import unlp.info.bd2.model.TourGuideUser;
-import unlp.info.bd2.model.User;
-import unlp.info.bd2.repositories.ItemServiceRepository;
-import unlp.info.bd2.repositories.PurchaseRepository;
-import unlp.info.bd2.repositories.ReviewRepository;
-import unlp.info.bd2.repositories.RouteRepository;
-import unlp.info.bd2.repositories.ServiceRepository;
-import unlp.info.bd2.repositories.StopRepository;
-import unlp.info.bd2.repositories.SupplierRepository;
-import unlp.info.bd2.repositories.UserRepository;
+import unlp.info.bd2.model.*;
+import unlp.info.bd2.repositories.*;
 import unlp.info.bd2.utils.ToursException;
 
 public class ToursServiceImpl implements ToursService {
@@ -69,7 +53,8 @@ public class ToursServiceImpl implements ToursService {
     @Transactional
     public TourGuideUser createTourGuideUser(String username, String password, String fullName, String email,
             Date birthdate, String phoneNumber, String education) {
-        TourGuideUser tourGuideUser = new TourGuideUser(username, password, fullName, email, birthdate, phoneNumber, education);
+        TourGuideUser tourGuideUser = new TourGuideUser(username, password, fullName, email, birthdate, phoneNumber,
+                education);
         return (TourGuideUser) this.userRepository.save(tourGuideUser);
     }
 
@@ -138,7 +123,8 @@ public class ToursServiceImpl implements ToursService {
         DriverUser driver = (DriverUser) this.userRepository.getUserByUsername(username)
                 .filter(u -> u instanceof DriverUser)
                 .orElseThrow(() -> new ToursException("Driver with username" + username + " does not exist"));
-        Route route = this.routeRepository.findById(idRoute).orElseThrow(() -> new ToursException("Route with id" + idRoute + " does not exist"));
+        Route route = this.routeRepository.findById(idRoute)
+                .orElseThrow(() -> new ToursException("Route with id" + idRoute + " does not exist"));
 
         if (!route.getDriverList().contains(driver)) {
             route.addDriver(driver);
@@ -152,7 +138,8 @@ public class ToursServiceImpl implements ToursService {
         TourGuideUser tourGuide = (TourGuideUser) this.userRepository.getUserByUsername(username)
                 .filter(u -> u instanceof TourGuideUser)
                 .orElseThrow(() -> new ToursException("TourGuide with username " + username + " does not exist"));
-        Route route = this.routeRepository.findById(idRoute).orElseThrow(() -> new ToursException("Route with id" + idRoute + " does not exist"));
+        Route route = this.routeRepository.findById(idRoute)
+                .orElseThrow(() -> new ToursException("Route with id" + idRoute + " does not exist"));
 
         if (!route.getTourGuideList().contains(tourGuide)) {
             route.addTourGuide(tourGuide);
@@ -169,12 +156,15 @@ public class ToursServiceImpl implements ToursService {
 
     @Override
     @Transactional
-    public Service addServiceToSupplier(String name, float price, String description, Supplier supplier) throws ToursException {
-        Supplier foundSupplier = this.supplierRepository.findById(supplier.getId()).orElseThrow(() -> new ToursException("Supplier was not found"));
-        boolean exists = foundSupplier.getServices().stream().anyMatch(s -> s.getName().equals(name));
+    public Service addServiceToSupplier(String name, float price, String description, Supplier supplier)
+            throws ToursException {
+        Supplier foundSupplier = this.supplierRepository.findById(supplier.getId())
+                .orElseThrow(() -> new ToursException("Supplier was not found"));
+        Optional<Service> foundService = foundSupplier.getServices().stream().filter(s -> s.getName().equals(name))
+                .findFirst();
 
-        if (exists) {
-            throw new ToursException("Supplier already has service with name " + name);
+        if (foundService.isPresent()) {
+            return foundService.get();
         }
 
         Service service = new Service(name, price, description, foundSupplier);
@@ -186,7 +176,8 @@ public class ToursServiceImpl implements ToursService {
     @Override
     @Transactional
     public Service updateServicePriceById(Long id, float newPrice) throws ToursException {
-        Service foundService = this.serviceRepository.findById(id).orElseThrow(() -> new ToursException("No service found with id " + id));
+        Service foundService = this.serviceRepository.findById(id)
+                .orElseThrow(() -> new ToursException("No service found with id " + id));
         foundService.setPrice(newPrice);
         return this.serviceRepository.save(foundService);
     }
@@ -223,7 +214,6 @@ public class ToursServiceImpl implements ToursService {
         }
 
         Purchase purchase = new Purchase(code, date, user, route);
-
         return this.purchaseRepository.save(purchase);
     }
 
@@ -231,6 +221,8 @@ public class ToursServiceImpl implements ToursService {
     @Transactional
     public ItemService addItemToPurchase(Service service, int quantity, Purchase purchase) {
         ItemService itemService = new ItemService(service, quantity, purchase);
+        purchase.setTotalPrice(purchase.getTotalPrice() + (service.getPrice() * quantity));
+        this.purchaseRepository.save(purchase);
         return this.itemServiceRepository.save(itemService);
     }
 
@@ -250,7 +242,8 @@ public class ToursServiceImpl implements ToursService {
     @Transactional
     public Review addReviewToPurchase(int rating, String comment, Purchase purchase) throws ToursException {
         if (purchase.getReview() != null) {
-            throw new ToursException("This purchase already has a review");
+            return purchase.getReview();
+            //throw new ToursException("This purchase already has a review");
         }
         Review review = new Review(rating, comment, purchase);
         return this.reviewRepository.save(review);
@@ -269,7 +262,8 @@ public class ToursServiceImpl implements ToursService {
     @Transactional
     public List<Purchase> getAllPurchasesOfUsername(String username) {
         return this.purchaseRepository.getAllPurchasesOfUsername(username);
-        // User user = this.userRepository.getUserByUsername(username).orElseThrow(() -> new ToursException("Username " + username + " was not found"));
+        // User user = this.userRepository.getUserByUsername(username).orElseThrow(() ->
+        // new ToursException("Username " + username + " was not found"));
         // return user.getPurchaseList();
     }
 

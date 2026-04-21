@@ -19,14 +19,18 @@ public class UserRepositoryImpl extends BaseRepositoryImpl<User> implements User
     @Override
     public Optional<User> getUserByUsername(String username) {
         String hql = "FROM User u WHERE u.username = :uname";
-        return this.sessionFactory.getCurrentSession().createQuery(hql, User.class).setParameter("uname", username).uniqueResultOptional();
+        return this.sessionFactory.getCurrentSession().createQuery(hql, User.class).setParameter("uname", username)
+                .uniqueResultOptional();
     }
 
     @Override
     public List<User> getUserSpendingMoreThan(float mount) {
-        String hql = "SELECT DISTINCT u FROM User u JOIN u.purchaseList p WHERE p.totalPrice >= :amount";
-        return this.sessionFactory.getCurrentSession().createQuery(hql, User.class)
-                .setParameter("amount", mount).getResultList();
+        String hql = "SELECT DISTINCT u FROM User u JOIN u.purchaseList p JOIN p.route r " +
+                "WHERE (p.totalPrice + r.price) >= :amount";
+        return this.sessionFactory.getCurrentSession()
+                .createQuery(hql, User.class)
+                .setParameter("amount", mount)
+                .getResultList();
     }
 
     @Override

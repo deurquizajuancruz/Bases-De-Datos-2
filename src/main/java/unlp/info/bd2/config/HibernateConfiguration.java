@@ -1,7 +1,6 @@
 package unlp.info.bd2.config;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -48,7 +47,7 @@ public class HibernateConfiguration {
 
     private Properties hibernateProperties() {
         Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create");
+        hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         hibernateProperties.setProperty("hibernate.show_sql", "true");
         hibernateProperties.setProperty("hibernate.format_sql", "true");

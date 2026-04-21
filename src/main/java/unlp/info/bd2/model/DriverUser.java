@@ -15,7 +15,7 @@ import jakarta.persistence.ManyToMany;
 @DiscriminatorValue("Driver")
 public class DriverUser extends User {
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = true, length = 50)
     private String expedient;
 
     @ManyToMany(mappedBy = "driverList", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)

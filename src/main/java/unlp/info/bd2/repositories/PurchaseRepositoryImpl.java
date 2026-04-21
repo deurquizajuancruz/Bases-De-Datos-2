@@ -19,7 +19,7 @@ public class PurchaseRepositoryImpl extends BaseRepositoryImpl<Purchase> impleme
 
     @Override
     public boolean getAvailabilty(Route route, Date date) {
-        String hql = "SELECT FROM COUNT(p) Purchase p WHERE p.route = :route AND p.date = :date";
+        String hql = "SELECT COUNT(p) FROM Purchase p WHERE p.route = :route AND p.date = :date";
         int count = this.sessionFactory.getCurrentSession().createQuery(hql, Long.class)
                 .setParameter("route", route)
                 .setParameter("date", date)

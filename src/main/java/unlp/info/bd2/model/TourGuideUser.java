@@ -15,7 +15,7 @@ import jakarta.persistence.ManyToMany;
 @DiscriminatorValue("TourGuide")
 public class TourGuideUser extends User {
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String education;
 
     @ManyToMany(mappedBy = "tourGuideList", cascade = { CascadeType.PERSIST,

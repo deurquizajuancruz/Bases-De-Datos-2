@@ -2,6 +2,8 @@ package unlp.info.bd2.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -10,12 +12,13 @@ import jakarta.persistence.Table;
 public class Stop {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 300)
     private String description;
 
     public Stop() {

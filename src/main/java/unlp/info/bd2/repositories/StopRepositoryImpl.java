@@ -16,8 +16,8 @@ public class StopRepositoryImpl extends BaseRepositoryImpl<Stop> implements Stop
 
     @Override
     public List<Stop> getStopByName(String name) {
-        String hql = "FROM Stop s WHERE name = :name";
-        return this.sessionFactory.getCurrentSession().createQuery(hql, Stop.class).setParameter("name", name).getResultList();
+        String hql = "FROM Stop s WHERE name LIKE :name";
+        return this.sessionFactory.getCurrentSession().createQuery(hql, Stop.class).setParameter("name", name + "%").getResultList();
     }
 
 }
