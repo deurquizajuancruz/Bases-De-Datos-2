@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 
 @Entity
-@DiscriminatorValue("Driver")
+@Table(name = "drivers")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class DriverUser extends User {
 
     @Column(nullable = true, length = 50)
