@@ -17,7 +17,7 @@ public class RouteRepositoryImpl extends BaseRepositoryImpl<Route> implements Ro
 
     @Override
     public List<Route> getRoutesBelowPrice(float price) {
-        String hql = "FROM Route r WHERE r.price < belowPrice";
+        String hql = "FROM Route r WHERE r.price < :belowPrice";
         return this.sessionFactory.getCurrentSession().createQuery(hql, Route.class).setParameter("belowPrice", price).getResultList();
     }
 

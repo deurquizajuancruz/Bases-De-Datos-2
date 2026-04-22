@@ -29,7 +29,7 @@ public class PurchaseRepositoryImpl extends BaseRepositoryImpl<Purchase> impleme
 
     @Override
     public Optional<Purchase> getPurchaseByCode(String code) {
-        String hql = "FROM Purchase p WHERE p.code = :codeP";
+        String hql = "SELECT DISTINCT p FROM Purchase p WHERE p.code = :codeP";
         return this.sessionFactory.getCurrentSession().createQuery(hql, Purchase.class)
                 .setParameter("codeP", code).uniqueResultOptional();
     }

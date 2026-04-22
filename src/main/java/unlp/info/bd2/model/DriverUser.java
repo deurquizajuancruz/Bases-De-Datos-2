@@ -25,7 +25,8 @@ public class DriverUser extends User {
 
     }
 
-    public DriverUser(String username, String password, String fullName, String email, Date birthdate, String phoneNumber, String expedient) {
+    public DriverUser(String username, String password, String fullName, String email, Date birthdate,
+            String phoneNumber, String expedient) {
         super(username, password, fullName, email, birthdate, phoneNumber);
         this.expedient = expedient;
         this.routes = new ArrayList<>();
@@ -45,5 +46,10 @@ public class DriverUser extends User {
 
     public void setRoutes(List<Route> routs) {
         this.routes = routs;
+    }
+
+    @Override
+    public boolean canBeDeleted() {
+        return this.routes.isEmpty();
     }
 }

@@ -24,18 +24,18 @@ public class Purchase {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {})
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {})
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "route_id")
     private Route route;
 
-    @OneToOne(optional = true, mappedBy = "purchase", cascade = {}, fetch = FetchType.EAGER)
+    @OneToOne(optional = true, mappedBy = "purchase", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private Review review;
 
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ItemService> itemServiceList;
 
     public Purchase() {
@@ -47,10 +47,11 @@ public class Purchase {
         this.user = user;
         this.date = date;
         this.route = route;
+        this.totalPrice = route.getPrice();
         this.itemServiceList = new ArrayList<>();
-        if (user != null) {
-            user.getPurchaseList().add(this);
-        }
+        // if (user != null) {
+        //     user.getPurchaseList().add(this);
+        // }
     }
 
     public Long getId() {
@@ -91,7 +92,7 @@ public class Purchase {
 
     public void setUser(User user) {
         this.user = user;
-        user.getPurchaseList().add(this);
+        // user.getPurchaseList().add(this);
     }
 
     public Route getRoute() {

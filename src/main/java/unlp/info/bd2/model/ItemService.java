@@ -39,9 +39,9 @@ public class ItemService {
         this.quantity = quantity;
         this.purchase = purchase;
 
-        if (purchase != null) {
-            purchase.getItemServiceList().add(this);
-        }
+        // if (purchase != null) {
+        //     purchase.getItemServiceList().add(this);
+        // }
     }
 
     public Long getId() {

@@ -19,14 +19,15 @@ public class TourGuideUser extends User {
     private String education;
 
     @ManyToMany(mappedBy = "tourGuideList", cascade = { CascadeType.PERSIST,
-            CascadeType.MERGE }, fetch = FetchType.LAZY)
+            CascadeType.MERGE }, fetch = FetchType.EAGER)
     private List<Route> routes;
 
     public TourGuideUser() {
 
     }
 
-    public TourGuideUser(String username, String password, String fullName, String email, Date birthdate, String phoneNumber, String education) {
+    public TourGuideUser(String username, String password, String fullName, String email, Date birthdate,
+            String phoneNumber, String education) {
         super(username, password, fullName, email, birthdate, phoneNumber);
         this.education = education;
         this.routes = new ArrayList<>();
@@ -46,6 +47,11 @@ public class TourGuideUser extends User {
 
     public void setRoutes(List<Route> routes) {
         this.routes = routes;
+    }
+
+    @Override
+    public boolean canBeDeleted() {
+        return this.routes.isEmpty();
     }
 
 }

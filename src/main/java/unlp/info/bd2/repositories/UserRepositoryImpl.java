@@ -26,7 +26,7 @@ public class UserRepositoryImpl extends BaseRepositoryImpl<User> implements User
     @Override
     public List<User> getUserSpendingMoreThan(float mount) {
         String hql = "SELECT DISTINCT u FROM User u JOIN u.purchaseList p JOIN p.route r " +
-                "WHERE (p.totalPrice + r.price) >= :amount";
+                "WHERE p.totalPrice >= :amount";
         return this.sessionFactory.getCurrentSession()
                 .createQuery(hql, User.class)
                 .setParameter("amount", mount)

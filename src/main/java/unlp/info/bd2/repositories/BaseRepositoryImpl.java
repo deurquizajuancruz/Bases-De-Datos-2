@@ -28,10 +28,15 @@ public abstract class BaseRepositoryImpl<T> implements BaseRepository<T> {
 
     @Override
     public List<T> findAll() {
-        return this.sessionFactory.getCurrentSession().createQuery("from " + this.entityClass.getName(), this.entityClass).getResultList();
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("from " + this.entityClass.getName(), this.entityClass).getResultList();
     }
 
-    @Override
+    // @Override
+    // public void delete(T entity) {
+    // this.sessionFactory.getCurrentSession().remove(entity);
+    // }
+
     public void delete(T entity) {
         this.sessionFactory.getCurrentSession().remove(entity);
     }

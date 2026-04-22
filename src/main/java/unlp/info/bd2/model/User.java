@@ -7,7 +7,7 @@ import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type")
 public class User {
@@ -52,6 +52,7 @@ public class User {
         this.email = email;
         this.birthdate = birthdate;
         this.phoneNumber = phoneNumber;
+        this.active = true;
         this.purchaseList = new ArrayList<>();
     }
 
@@ -125,5 +126,13 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean canBeDeleted() {
+        return true;
+    }
+
+    public void addPurchase(Purchase purchase){
+        this.purchaseList.add(purchase);
     }
 }
