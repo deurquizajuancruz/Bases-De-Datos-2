@@ -1,6 +1,7 @@
 package unlp.info.bd2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import unlp.info.bd2.model.*;
 import unlp.info.bd2.services.ToursService;
@@ -8,6 +9,7 @@ import unlp.info.bd2.services.ToursService;
 import java.time.LocalDate;
 import java.util.*;
 
+@Component
 public class DBInitializer {
 
     @Autowired

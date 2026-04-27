@@ -3,16 +3,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import unlp.info.bd2.model.DriverUser;
-import unlp.info.bd2.model.ItemService;
-import unlp.info.bd2.model.Purchase;
-import unlp.info.bd2.model.Review;
-import unlp.info.bd2.model.Route;
-import unlp.info.bd2.model.Service;
-import unlp.info.bd2.model.Stop;
-import unlp.info.bd2.model.Supplier;
-import unlp.info.bd2.model.TourGuideUser;
-import unlp.info.bd2.model.User;
+import unlp.info.bd2.model.*;
 import unlp.info.bd2.utils.ToursException;
 
 public interface ToursService {

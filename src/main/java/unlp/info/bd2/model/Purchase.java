@@ -32,7 +32,7 @@ public class Purchase {
     @JoinColumn(name = "route_id")
     private Route route;
 
-    @OneToOne(optional = true, mappedBy = "purchase", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @OneToOne(optional = true, mappedBy = "purchase", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.EAGER)
     private Review review;
 
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
