@@ -4,11 +4,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.*;
 
+// @SuppressWarnings("deprecation")
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+// @SQLDelete(sql = "UPDATE users SET active = false WHERE id = ?")
+// @Where(clause = "active = true")
 public class User {
 
     @Id
