@@ -5,10 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import unlp.info.bd2.model.*;
 import unlp.info.bd2.repositories.*;
 import unlp.info.bd2.utils.ToursException;
@@ -68,13 +66,13 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<User> getUserById(Long id) {
         return this.userRepository.findById(id);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<User> getUserByUsername(String username) {
         return this.userRepository.findByUsername(username);
     }
@@ -117,7 +115,7 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Stop> getStopByNameStart(String name) {
         return this.stopRepository.findByNameStartingWith(name);
     }
@@ -130,13 +128,13 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<Route> getRouteById(Long id) {
         return this.routeRepository.findById(id);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Route> getRoutesBelowPrice(float price) {
         return this.routeRepository.findByPriceLessThan(price);
     }
@@ -218,19 +216,19 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<Supplier> getSupplierById(Long id) {
         return this.supplierRepository.findById(id);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<Supplier> getSupplierByAuthorizationNumber(String authorizationNumber) {
         return this.supplierRepository.findByAuthorizationNumber(authorizationNumber);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<Service> getServiceByNameAndSupplierId(String name, Long id) throws ToursException {
         return this.serviceRepository.findByNameAndSupplierId(name, id);
     }
@@ -280,7 +278,7 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<Purchase> getPurchaseByCode(String code) {
         return this.purchaseRepository.findByCode(code);
     }
@@ -319,61 +317,61 @@ public class ToursServiceImpl implements ToursService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Purchase> getAllPurchasesOfUsername(String username) {
         return this.purchaseRepository.findByUserUsername(username);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<User> getUserSpendingMoreThan(float mount) {
         return this.userRepository.getUserSpendingMoreThan(mount);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Supplier> getTopNSuppliersInPurchases(int n) {
         return this.supplierRepository.findTopSuppliers(PageRequest.of(0, n));
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public long getCountOfPurchasesBetweenDates(Date start, Date end) {
         return this.purchaseRepository.countByDateBetween(start, end);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Route> getRoutesWithStop(Stop stop) {
         return this.routeRepository.getRoutesWithStop(stop);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Long getMaxStopOfRoutes() {
         return this.routeRepository.getMaxStopOfRoutes();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Route> getRoutsNotSell() {
         return this.routeRepository.getRoutsNotSell();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Route> getTop3RoutesWithMaxRating() {
         return this.routeRepository.getTop3RoutesWithMaxRating(PageRequest.of(0, 3));
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Service getMostDemandedService() {
         return this.serviceRepository.getMostDemandedService(PageRequest.of(0, 1)).stream().findFirst().orElse(null);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<TourGuideUser> getTourGuidesWithRating1() {
         return this.userRepository.getTourGuidesWithRating1();
     }
